@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth transition-colors duration-500">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Portfolio</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Poppins and Playfair Display -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Playfair+Display&display=swap" rel="stylesheet" />
+<style>
+  /* Full screen canvas background behind everything */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -10;
+    pointer-events: none;
+    background-color: transparent;
+    display: block;
+  }
+  /* Custom animations */
+  @keyframes wave {
+    0% { transform: rotate(0deg); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-8deg); }
+    40% { transform: rotate(14deg); }
+    50% { transform: rotate(-4deg); }
+    60% { transform: rotate(10deg); }
+    70% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+  }
+  .wave {
+    display: inline-block;
+    animation-name: wave;
+    animation-duration: 2.5s;
+    animation-iteration-count: infinite;
+    transform-origin: 70% 70%;
+  }
+  /* Scroll reveal animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Skill bar animation */
+  @keyframes skillfill {
+    from { width: 0; }
+    to { width: var(--skill-level); }
+  }
+  .skill-bar {
+    width: 0;
+    animation-fill-mode: forwards;
+    animation-name: skillfill;
+    animation-duration: 2s;
+    animation-timing-function: ease-in-out;
+  }
+  /* Custom dark theme colors override for deeper dark */
+  :root {
+    --dark-bg: #121212;
+    --dark-bg-light: #1e1e1e;
+    --dark-accent: #7c3aed; /* Indigo-600 */
+    --dark-text-primary: #e0e7ff; /* Indigo-100 */
+    --dark-text-secondary: #a5b4fc; /* Indigo-300 */
+  }
+  html.dark {
+    background-color: var(--dark-bg);
+    color: var(--dark-text-primary);
+  }
+  html.dark header {
+    background-color: var(--dark-bg-light);
+  }
+  html.dark footer {
+    background-color: var(--dark-accent);
+  }
+  html.dark a {
+    color: var(--dark-accent);
+  }
+  html.dark a:hover,
+  html.dark a:focus {
+    color: #c7d2fe; /* Indigo-200 */
+  }
+  html.dark .text-indigo-600 {
+    color: var(--dark-accent);
+  }
+  html.dark .border-indigo-600 {
+    border-color: var(--dark-accent);
+  }
+  html.dark .bg-indigo-600 {
+    background-color: var(--dark-accent);
+  }
+  html.dark .bg-indigo-100 {
+    background-color: #2c1a5f;
+  }
+  html.dark .dark\:bg-gray-700 {
+    background-color: #1e1e1e;
+  }
+</style>
+<style>
+  .font-playfair {
+    font-family: 'Playfair Display', serif;
+  }
+</style>
+</head>
+<body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 font-poppins antialiased">
+  <!-- Canvas for 3D background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <header class="fixed top-0 left-0 right-0 bg-black dark:bg-[#1e1e1e] shadow-md z-50 transition-colors duration-500 text-white">
+    <nav class="container mx-auto flex items-center justify-between px-12 py-4 max-w-screen-xl">
+      <!-- Logo -->
+      <a href="#" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 select-none tracking-wide">
+        <span class="wave">🌟</span> My Portfolio
+      </a>
+      <!-- Navigation -->
+      <ul class="hidden md:flex space-x-12 font-medium tracking-wide">
+        <li><a href="#home" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Home</a></li>
+        <li><a href="#about" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">About</a></li>
+        <li><a href="#education" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Education</a></li>
+        <li><a href="#certificates" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Certificates</a></li>
+        <li><a href="#projects" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Projects</a></li>
+        <li><a href="#skills" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">My Skills</a></li>
+        <li><a href="#contact" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300 border-2 border-red-600 rounded-md px-2 py-1">Contact</a></li>
+      </ul>
+      <!-- Mobile menu button -->
+      <button id="menu-toggle" aria-label="Toggle navigation menu" class="md:hidden p-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300">
+      <!-- Mobile menu button -->
+      <button id="menu-toggle" aria-label="Toggle navigation menu" class="md:hidden p-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </nav>
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-black dark:bg-[#1e1e1e] shadow-inner transition-colors duration-500 text-white">
+      <ul class="flex flex-col px-8 py-6 space-y-6 text-lg font-medium tracking-wide">
+        <li><a href="#home" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Home</a></li>
+        <li><a href="#about" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">About</a></li>
+        <li><a href="#education" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Education</a></li>
+        <li><a href="#certificates" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Certificates</a></li>
+        <li><a href="#projects" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Projects</a></li>
+        <li><a href="#skills" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">My Skills</a></li>
+        <li><a href="#contact" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="pt-24 pb-16 relative z-10">
+    <!-- Home Section -->
+    <section id="home" class="min-h-screen flex flex-col justify-center items-center text-center px-6 sm:px-12 lg:px-24 xl:px-32 reveal">
+      <img src="WhatsApp Image 2025-05-07 at 14.29.30_89401789.jpg" alt="Profile" class="rounded-full w-44 h-44 mb-8 shadow-lg border-4 border-indigo-600 dark:border-indigo-400 object-cover object-top" />
+      <h1 class="text-4xl sm:text-6xl font-extrabold mb-10 tracking-tight drop-shadow-lg animate-fade-in">
+        Hello, I'm <span id="animated-name" class="text-indigo-600 dark:text-indigo-400">Krishna Awasthi</span>
+      </h1>
+<p class="text-xl sm:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-12 animate-fade-in delay-200 font-playfair">
+        A B. Tech. student who is passionate about development , technologies, AI/ML and much more.
+      </p>
+      <a href="#projects" class="inline-block bg-indigo-600 text-white font-semibold py-4 px-12 rounded-lg shadow-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-400 focus:outline-none transition-all duration-300 animate-bounce">
+        Check My Work!
+      </a>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="min-h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-24 xl:px-32 reveal">
+      <h2 class="text-4xl font-bold mb-12 border-b-4 border-indigo-600 inline-block pb-2 dark:border-indigo-400 tracking-wide text-center max-w-5xl mx-auto">About Me</h2>
+      <div class="flex flex-col md:flex-row items-center md:space-x-16 max-w-7xl mx-auto">
+        <img src="WhatsApp Image 2025-05-07 at 14.42.51_0c5723c0.jpg" alt="Your portrait" class="rounded-full w-60 h-60 mb-12 md:mb-0 object-cover object-top shadow-lg border-4 border-indigo-600 dark:border-indigo-400 animate-name" />
+        <div class="text-gray-700 dark:text-gray-300 text-xl leading-relaxed max-w-4xl text-center md:text-left space-y-6 font-playfair">
+          <p>
+            I am a B.Tech student specializing in Artificial Intelligence and Machine Learning at Institute of Engineering and Technology, Sitapur. My journey in technology began with a fascination for coding and problem-solving, which has evolved into a passion for creating impactful software solutions.
+          </p>
+          <p>
+             I constantly seek to improve by embracing new technologies and best practices. I prioritize clean, maintainable code.I am eager to gain hands-on experience through internships and collaborative projects, and I am always looking for opportunities to learn and grow as a Professional Software Engineer.
+          </p>
+          <p>
+            Beyond coding, I enjoy art and design, which help me bring a refined aesthetic sensibility to my projects.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="min-h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-24 xl:px-32 reveal">
+      <h2 class="text-4xl font-bold mb-12 border-b-4 border-indigo-600 inline-block pb-2 dark:border-indigo-400 tracking-wide text-center max-w-5xl mx-auto">Education</h2>
+      <div class="max-w-5xl mx-auto text-gray-700 dark:text-gray-300 text-lg">
+        <div class="relative border-l-4 border-indigo-600 dark:border-indigo-400 pl-8 space-y-12">
+          <!-- Graduation -->
+          <div class="relative">
+            <span class="absolute -left-5 top-1 bg-indigo-600 dark:bg-indigo-400 rounded-full w-6 h-6 border-4 border-white dark:border-gray-900"></span>
+<h3 class="text-2xl font-semibold mb-1 bg-white/30 dark:bg-gray-700/30 backdrop-blur-lg rounded-md inline-block px-3 py-1">Graduation</h3>
+            <p class="font-semibold">B.Tech in Artificial Intelligence and Machine Learning</p>
+            <p class="italic mb-1">Institute of Engineering and Technology, Sitapur</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">2024 - Present</p>
+            <p>Focused on machine learning, deep learning, and AI research. Completed coursework in data structures & algorithms, software engineering, and much more.</p>
+          </div>
+          <!-- Intermediate -->
+          <div class="relative">
+            <span class="absolute -left-5 top-1 bg-indigo-600 dark:bg-indigo-400 rounded-full w-6 h-6 border-4 border-white dark:border-gray-900"></span>
+<h3 class="text-2xl font-semibold mb-1 bg-white/30 dark:bg-gray-700/30 backdrop-blur-lg rounded-md inline-block px-3 py-1">Intermediate</h3>
+            <p class="italic mb-1">Sumitra Modern School, Sitapur</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">2024</p>
+            <p>Passed with PCM + Computer Science & English.</p>
+          </div>
+          <!-- High School -->
+          <div class="relative">
+            <span class="absolute -left-5 top-1 bg-indigo-600 dark:bg-indigo-400 rounded-full w-6 h-6 border-4 border-white dark:border-gray-900"></span>
+<h3 class="text-2xl font-semibold mb-1 bg-white/30 dark:bg-gray-700/30 backdrop-blur-lg rounded-md inline-block px-3 py-1">High School</h3>
+            <p class="italic mb-1">Lucknow Public School, Sitapur</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">2021</p>
+            <p>Passed with Mathematics & Science + Computer Science + Hindi & English + Social Science.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Certificates Section -->
+    <section id="certificates" class="min-h-screen flex flex-col justify-center px-6 sm:px-12 lg:px-24 xl:px-32 reveal">
+<h2 class="text-4xl font-bold mb-12 border-b-4 border-indigo-600 inline-block pb-2 dark:border-indigo-400 tracking-wide text-center max-w-5xl mx-auto">Certificates</h2>
+      <div class="max-w-5xl mx-auto space-y-16 text-gray-700 dark:text-gray-300 text-lg">
+        <div class="flex items-center space-x-6">
+          <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Certificate 1" class="w-24 h-auto rounded-lg shadow-md" />
+          <p class="text-lg leading-relaxed">
+            <strong>abc</strong><br />
+            abc University<br />
+            2023<br />
+            Completed a comprehensive specialization covering supervised and unsupervised learning, neural networks, and deep learning.
+          </p>
+        </div>
+        <div class="flex items-center space-x-6">
+          <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Certificate 2" class="w-24 h-auto rounded-lg shadow-md" />
+          <p class="text-lg leading-relaxed">
+            <strong>abc</strong><br />
+            abc<br />
+            2022<br />
+            Learned 
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="min-h-screen px-6 sm:px-12 lg:px-24 xl:px-32 reveal">
+<h2 class="text-4xl font-bold mb-12 border-b-4 border-indigo-600 pb-2 dark:border-indigo-400 tracking-wide text-center max-w-5xl mx-auto">My Projects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-16 max-w-5xl mx-auto">
+        <!-- Project 1 -->
+        <article class="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Responsive Portfolio Website Project" class="w-full h-64 object-cover rounded-t-xl" />
+          <div class="p-8">
+            <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mb-4">A Responsive Portfolio Website</h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-6">A personal portfolio site featuring sleek animations and mobile-first design implemented using HTML, CSS, Tailwind CSS, JavaScript and Generative AI.</p>
+            <a href="#" class="inline-block text-indigo-600 dark:text-indigo-400 font-semibold hover:underline" target="_blank" rel="noopener">View Details</a>
+          </div>
+        </article>
+        <!-- Project 2 -->
+        <article class="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+          <img src="https://images.unsplash.com/photo-1643208589896-07b8feb4dffa?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=thibault-penin-SwKf1x2_hRo-unsplash.jpg" alt="Project Two" class="w-full h-64 object-cover" alt="Project Two" class="w-full h-64 object-cover" />
+          <div class="p-8">
+            <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mb-4">A simple Ui Spotify Clone</h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-6">A responsive UI clone of Spotify built with HTML, CSS, and JavaScript.</p>
+            <a href="https://github.com/awasthi8krishna/Project_SpotifyMusicClone" class="inline-block text-indigo-600 dark:text-indigo-400 font-semibold hover:underline" target="_blank" rel="noopener">View Details</a>
+          </div>
+        </article>
+        <!-- Project 3 -->
+        <article class="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+          <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80" alt="Project Three" class="w-full h-64 object-cover" />
+          <div class="p-8">
+            <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mb-4"></h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-6"></p>
+            <a href="#" class="inline-block text-indigo-600 dark:text-indigo-400 font-semibold hover:underline" target="_blank" rel="noopener">View Details</a>
+          </div>
+        </article>
+        <!-- Project 4 -->
+        <article class="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Project Four" class="w-full h-64 object-cover" />
+          <div class="p-8">
+            <h3 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mb-4"></h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-6"></p>
+            <a href="#" class="inline-block text-indigo-600 dark:text-indigo-400 font-semibold hover:underline" target="_blank" rel="noopener">View Details</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- My Skills Section -->
+    <section id="skills" class="min-h-[180vh] px-6 sm:px-12 lg:px-24 xl:px-32 reveal flex flex-col justify-center">
+      <h2 class="text-4xl font-bold mb-12 border-b-4 border-indigo-600 inline-block pb-2 dark:border-indigo-400 tracking-wide text-center max-w-7xl mx-auto">My Skills</h2>
+      <p class="mb-12 text-gray-700 dark:text-gray-300 mx-auto text-center max-w-4xl text-lg">
+        A selection of core skills and technologies that I work with proficiently.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-20 gap-y-10 max-w-7xl mx-auto max-w-[900px] text-lg">
+        <!-- Skill 1 -->
+        <div>
+          <div class="flex justify-between mb-3 font-medium text-indigo-600 dark:text-indigo-400">HTML</div>
+          <div class="w-full bg-indigo-100 dark:bg-indigo-900 rounded-full" style="height: 28px;">
+            <div class="bg-indigo-600 dark:bg-indigo-400 rounded-full skill-bar" style="--skill-level: 95%; height: 28px;" aria-label="HTML5 skill level 95%" role="progressbar"></div>
+          </div>
+        </div>
+        <!-- Skill 2 -->
+        <div>
+          <div class="flex justify-between mb-3 font-medium text-indigo-600 dark:text-indigo-400">CSS</div>
+          <div class="w-full bg-indigo-100 dark:bg-indigo-900 rounded-full" style="height: 28px;">
+            <div class="bg-indigo-600 dark:bg-indigo-400 rounded-full skill-bar" style="--skill-level: 90%; height: 28px;" aria-label="CSS3 and Tailwind skill level 90%" role="progressbar"></div>
+          </div>
+        </div>
+        <!-- Skill 3 -->
+        <div>
+          <div class="flex justify-between mb-3 font-medium text-indigo-600 dark:text-indigo-400">JavaScript</div>
+          <div class="w-full bg-indigo-100 dark:bg-indigo-900 rounded-full" style="height: 28px;">
+            <div class="bg-indigo-600 dark:bg-indigo-400 rounded-full skill-bar" style="--skill-level: 65%; height: 28px;" aria-label="JavaScript skill level 85%" role="progressbar"></div>
+          </div>
+        </div>
+        <!-- Skill 4 -->
+        <div>
+          <div class="flex justify-between mb-3 font-medium text-indigo-600 dark:text-indigo-400">C Programming</div>
+          <div class="w-full bg-indigo-100 dark:bg-indigo-900 rounded-full" style="height: 28px;">
+            <div class="bg-indigo-600 dark:bg-indigo-400 rounded-full skill-bar" style="--skill-level: 70%; height: 28px;" aria-label="React skill level 80%" role="progressbar"></div>
+          </div>
+        </div>
+        <!-- Skill 5 -->
+        <div>
+          <div class="flex justify-between mb-3 font-medium text-indigo-600 dark:text-indigo-400">AI</div>
+          <div class="w-full bg-indigo-100 dark:bg-indigo-900 rounded-full" style="height: 28px;">
+            <div class="bg-indigo-600 dark:bg-indigo-400 rounded-full skill-bar" style="--skill-level: 75%; height: 28px;" aria-label="Node.js skill level 75%" role="progressbar"></div>
+          </div>
+        </div>
+        <!-- Skill 6 -->
+        <div>
+          <div class="flex justify-between mb-3 font-medium text-indigo-600 dark:text-indigo-400">Git & Version Control</div>
+          <div class="w-full bg-indigo-100 dark:bg-indigo-900 rounded-full" style="height: 28px;">
+            <div class="bg-indigo-600 dark:bg-indigo-400 rounded-full skill-bar" style="--skill-level: 90%; height: 28px;" aria-label="Git skill level 90%" role="progressbar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+<section id="contact" class="min-h-[60vh] px-6 sm:px-12 lg:px-24 xl:px-32 reveal flex flex-col justify-center">
+      <h2 class="text-4xl font-bold mb-16 border-b-4 border-indigo-600 inline-block pb-2 dark:border-indigo-400 tracking-wide text-center max-w-7xl mx-auto">Contact Me</h2>
+      <div class="max-w-xl mx-auto text-center text-white font-semibold space-y-12">
+        <p class="flex items-center justify-center space-x-4 text-2xl sm:text-3xl font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h1l2 3m0 0l3-2 4 4 5-5 3 3v1a2 2 0 01-2 2h-1a16 16 0 01-7-7v-1a2 2 0 012-2z" />
+          </svg>
+          <span>My Number - +91 1234567890</span>
+        </p>
+        <p class="flex items-center justify-center space-x-4 text-2xl sm:text-3xl font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H8m0 0l4-4m-4 4l4 4m6-4a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>My Email - krishnaawasthistp99@gmail.com</span>
+        </p>
+        <div class="flex justify-center space-x-10 text-white text-4xl">
+          <a href="https://github.com/awasthi8krishna" aria-label="GitHub" class="hover:text-indigo-300 transition-colors duration-300">
+            <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10">
+              <title>GitHub</title>
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.236 1.84 1.236 1.07 1.835 2.807 1.305 3.492.997.108-.775.418-1.305.76-1.605-2.665-.3-5.466-1.335-5.466-5.93 0-1.31.47-2.38 1.236-3.22-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.3 1.23a11.5 11.5 0 013.003-.404c1.02.005 2.045.138 3.003.404 2.29-1.552 3.296-1.23 3.296-1.23.655 1.653.243 2.873.12 3.176.77.84 1.234 1.91 1.234 3.22 0 4.61-2.807 5.625-5.48 5.92.43.37.823 1.1.823 2.22 0 1.606-.015 2.896-.015 3.286 0 .32.216.694.825.576C20.565 21.796 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </a>
+          <a href="https://www.linkedin.com/in/krishna-awasthi-051b07316" aria-label="LinkedIn" class="hover:text-indigo-300 transition-colors duration-300">
+            <svg role="img" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10">
+              <title>LinkedIn</title>
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.327-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.9 1.637-1.852 3.37-1.852 3.602 0 4.268 2.37 4.268 5.455v6.288zM5.337 7.433a2.07 2.07 0 11.001-4.14 2.07 2.07 0 01-.001 4.14zm1.777 13.019H3.56V9h3.554v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.226.792 24 1.771 24h20.451C23.2 24 24 23.226 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
+            </svg>
+          </a>
+        </div>
+        <p class="text-xl sm:text-2xl text-indigo-200 font-semibold">Feel Free to contact me from anywhere, at anytime!</p>
+      </div>
+    </section>
+  </main>
+
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script>
+    // Animate skill bars on scroll
+    function animateSkillBars() {
+      document.querySelectorAll('.skill-bar').forEach(bar => {
+        bar.style.width = bar.style.getPropertyValue('--skill-level');
+      });
+    }
+
+    // Mobile menu toggle
+    const menuToggleBtn = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggleBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Scroll reveal animations for about, projects, skills and contact
+    function revealOnScroll() {
+      const reveals = document.querySelectorAll('.reveal');
+      for (const reveal of reveals) {
+        const windowHeight = window.innerHeight;
+        const elementTop = reveal.getBoundingClientRect().top;
+        const revealPoint = 150;
+
+        if (elementTop < windowHeight - revealPoint) {
+          reveal.classList.add('active');
+          if (reveal.id === 'skills') {
+            animateSkillBars();
+          }
+        }
+      }
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', () => {
+      revealOnScroll();
+      // Animate skill bars immediately if visible on load
+      const skills = document.getElementById('skills');
+      if (skills.getBoundingClientRect().top < window.innerHeight - 150) {
+        animateSkillBars();
+      }
+    });
+
+    // New dark theme inspired 3D animated background using Three.js
+
+    let scene, camera, renderer;
+    let shapes = [];
+    let clock;
+
+    function initBackground() {
+      const canvas = document.getElementById('bg-canvas');
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+      camera.position.set(0, 0, 1000);
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x0a0a0a, 1); // dark background color
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.7); // soft white light
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0x8a2be2, 1); // blue violet light
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+
+      // Create floating shapes with different geometry and colors
+      const geometryTypes = [
+        new THREE.DodecahedronGeometry(30),
+        new THREE.OctahedronGeometry(25),
+        new THREE.TorusKnotGeometry(20, 6, 100, 16)
+      ];
+
+      const materialColors = [0x4b0082, 0x6a5acd, 0x483d8b]; // dark indigo, slate blue, dark slate blue
+
+      for (let i = 0; i < 40; i++) {
+        const geometry = geometryTypes[i % geometryTypes.length];
+        const material = new THREE.MeshStandardMaterial({
+          color: materialColors[i % materialColors.length],
+          roughness: 0.3,
+          metalness: 0.8,
+          transparent: true,
+          opacity: 0.75
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+
+        mesh.position.x = (Math.random() - 0.5) * 1400;
+        mesh.position.y = (Math.random() - 0.5) * 900;
+        mesh.position.z = (Math.random() - 0.5) * 900;
+
+        mesh.rotationSpeed = {
+          x: (Math.random() - 0.5) * 0.015,
+          y: (Math.random() - 0.5) * 0.015
+        };
+
+        shapes.push(mesh);
+        scene.add(mesh);
+      }
+
+      clock = new THREE.Clock();
+
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animateBackground() {
+      requestAnimationFrame(animateBackground);
+
+      const elapsed = clock.getElapsedTime();
+
+      shapes.forEach(shape => {
+        shape.rotation.x += shape.rotationSpeed.x;
+        shape.rotation.y += shape.rotationSpeed.y;
+
+        // Floating movement with slower oscillation
+        shape.position.x += Math.sin(elapsed * 0.5 + shape.position.y) * 0.05;
+        shape.position.y += Math.cos(elapsed * 0.5 + shape.position.x) * 0.05;
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    initBackground();
+    animateBackground();
+  </script>
+  <script>
+    // Typing animation for the name in Home section
+    const texts = ["Krishna Awasthi", "A Coder", "The Student", "A Future Software Engineer"];
+    const typingSpeed = 100; // ms per character
+    const pauseTime = 1500; // ms to pause on full text
+    let textIndex = 0;
+    let charIndex = 0;
+    const animatedName = document.getElementById("animated-name");
+
+    function type() {
+      if (!animatedName) return;
+      if (charIndex < texts[textIndex].length) {
+        animatedName.textContent += texts[textIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(type, typingSpeed);
+      } else {
+        setTimeout(erase, pauseTime);
+      }
+    }
+
+    function erase() {
+      if (!animatedName) return;
+      if (charIndex > 0) {
+        animatedName.textContent = texts[textIndex].substring(0, charIndex - 1);
+        charIndex--;
+        setTimeout(erase, typingSpeed / 2);
+      } else {
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(type, typingSpeed);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      if (animatedName) {
+        animatedName.textContent = "";
+        type();
+      }
+    });
+  </script>
+</body>
+</html>

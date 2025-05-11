@@ -121,14 +121,16 @@
   }
 </style>
 <style>
-  /* Mobile-specific text color overrides for white text to light green shades */
+  /* Mobile-specific text color overrides for white text to light green shades in Home, About, Education sections */
   @media (max-width: 767px) {
-    /* Target elements with white text */
-    .text-white, .text-white * {
+    #home .text-white, #home .text-white *,
+    #about .text-white, #about .text-white *,
+    #education .text-white, #education .text-white * {
       color: #90ee90 !important; /* Light green */
     }
-    /* Headings with white text get a darker green */
-    h1.text-white, h2.text-white, h3.text-white, h4.text-white, h5.text-white, h6.text-white {
+    #home h1.text-white, #home h2.text-white, #home h3.text-white, #home h4.text-white, #home h5.text-white, #home h6.text-white,
+    #about h1.text-white, #about h2.text-white, #about h3.text-white, #about h4.text-white, #about h5.text-white, #about h6.text-white,
+    #education h1.text-white, #education h2.text-white, #education h3.text-white, #education h4.text-white, #education h5.text-white, #education h6.text-white {
       color: #2e8b57 !important; /* Darker green */
     }
   }

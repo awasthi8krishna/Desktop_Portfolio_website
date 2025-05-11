@@ -48,6 +48,20 @@
     opacity: 1;
     transform: translateY(0);
   }
+  /* Scroll up animation */
+  @keyframes scrollUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .scroll-up {
+    animation: scrollUp 0.6s ease-out forwards;
+  }
   /* Skill bar animation */
   @keyframes skillfill {
     from { width: 0; }
@@ -140,8 +154,6 @@
         <li><a href="#skills" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">My Skills</a></li>
         <li><a href="#contact" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300 border-2 border-red-600 rounded-md px-2 py-1">Contact</a></li>
       </ul>
-      <!-- Mobile menu button -->
-      <button id="menu-toggle" aria-label="Toggle navigation menu" class="md:hidden p-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300">
       <!-- Mobile menu button -->
       <button id="menu-toggle" aria-label="Toggle navigation menu" class="md:hidden p-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -388,10 +400,13 @@
     </section>
   </main>
 
-  
-
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
   <script>
+    console.log("Script started");
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Error caught: ", message, " at ", source, ":", lineno, ":", colno);
+    };
+
     // Animate skill bars on scroll
     function animateSkillBars() {
       document.querySelectorAll('.skill-bar').forEach(bar => {
@@ -407,17 +422,28 @@
     });
 
     // Scroll reveal animations for about, projects, skills and contact
+    let lastScrollTop = 0;
     function revealOnScroll() {
       const reveals = document.querySelectorAll('.reveal');
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollingUp = scrollTop < lastScrollTop;
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+
       for (const reveal of reveals) {
         const windowHeight = window.innerHeight;
         const elementTop = reveal.getBoundingClientRect().top;
         const revealPoint = 150;
 
         if (elementTop < windowHeight - revealPoint) {
-          reveal.classList.add('active');
-          if (reveal.id === 'skills') {
-            animateSkillBars();
+          if (scrollingUp) {
+            reveal.classList.add('scroll-up');
+            reveal.classList.remove('active');
+          } else {
+            reveal.classList.add('active');
+            reveal.classList.remove('scroll-up');
+            if (reveal.id === 'skills') {
+              animateSkillBars();
+            }
           }
         }
       }
@@ -464,39 +490,104 @@
         new THREE.TorusKnotGeometry(20, 6, 100, 16)
       ];
 
-      const materialColors = [0x4b0082, 0x6a5acd, 0x483d8b]; // dark indigo, slate blue, dark slate blue
-
-      for (let i = 0; i < 40; i++) {
+      // Create shapes and add to scene
+      for (let i = 0; i < 30; i++) {
         const geometry = geometryTypes[i % geometryTypes.length];
         const material = new THREE.MeshStandardMaterial({
-          color: materialColors[i % materialColors.length],
-          roughness: 0.3,
-          metalness: 0.8,
+          color: new THREE.Color(`hsl(${Math.random() * 360}, 70%, 60%)`),
+          roughness: 0.5,
+          metalness: 0.5,
           transparent: true,
-          opacity: 0.75
+          opacity: 0.8,
         });
         const mesh = new THREE.Mesh(geometry, material);
-
-        mesh.position.x = (Math.random() - 0.5) * 1400;
-        mesh.position.y = (Math.random() - 0.5) * 900;
-        mesh.position.z = (Math.random() - 0.5) * 900;
-
-        mesh.rotationSpeed = {
-          x: (Math.random() - 0.5) * 0.015,
-          y: (Math.random() - 0.5) * 0.015
-        };
-
-        shapes.push(mesh);
+        mesh.position.set(
+          (Math.random() - 0.5) * 2000,
+          (Math.random() - 0.5) * 2000,
+          (Math.random() - 0.5) * 2000
+        );
+        mesh.rotation.set(
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
+          Math.random() * Math.PI
+        );
+        mesh.scale.setScalar(Math.random() * 0.5 + 0.5);
         scene.add(mesh);
+        shapes.push(mesh);
       }
 
       clock = new THREE.Clock();
 
-      window.addEventListener('resize', onWindowResize, false);
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsed = clock.getElapsedTime();
+
+        shapes.forEach((shape, index) => {
+          shape.rotation.x += 0.01 + index * 0.0001;
+          shape.rotation.y += 0.01 + index * 0.0001;
+          shape.position.x = 1000 * Math.sin(elapsed + index);
+          shape.position.y = 1000 * Math.cos(elapsed + index);
+        });
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
     }
 
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    // Initialize background animation
+    initBackground();
+
+    // Typing animation for #animated-name
+    const typingPhrases = [
+      "Krishna Awasthi",
+      "A Student",
+      "A coder",
+      "The Future Software Engineer"
+    ];
+    const typingElement = document.getElementById("animated-name");
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let typingDelay = 100;
+    let erasingDelay = 50;
+    let newPhraseDelay = 1500; // Delay between phrases
+    let isErasing = false;
+
+    function type() {
+      const currentPhrase = typingPhrases[phraseIndex];
+      if (!isErasing) {
+        typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
+        charIndex++;
+        if (charIndex === currentPhrase.length) {
+          isErasing = true;
+          setTimeout(type, newPhraseDelay);
+        } else {
+          setTimeout(type, typingDelay);
+        }
+      } else {
+        typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
+        charIndex--;
+        if (charIndex === 0) {
+          isErasing = false;
+          phraseIndex = (phraseIndex + 1) % typingPhrases.length;
+          setTimeout(type, typingDelay);
+        } else {
+          setTimeout(type, erasingDelay);
+        }
+      }
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typingPhrases.length) {
+        setTimeout(type, newPhraseDelay);
+      }
+    });
+  </script>
+</body>
+</html>

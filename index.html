@@ -106,6 +106,19 @@
     font-family: 'Playfair Display', serif;
   }
 </style>
+<style>
+  /* Mobile-specific text color overrides for white text to light green shades */
+  @media (max-width: 767px) {
+    /* Target elements with white text */
+    .text-white, .text-white * {
+      color: #90ee90 !important; /* Light green */
+    }
+    /* Headings with white text get a darker green */
+    h1.text-white, h2.text-white, h3.text-white, h4.text-white, h5.text-white, h6.text-white {
+      color: #2e8b57 !important; /* Darker green */
+    }
+  }
+</style>
 </head>
 <body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 font-poppins antialiased">
   <!-- Canvas for 3D background -->
@@ -487,65 +500,3 @@
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
-
-    function animateBackground() {
-      requestAnimationFrame(animateBackground);
-
-      const elapsed = clock.getElapsedTime();
-
-      shapes.forEach(shape => {
-        shape.rotation.x += shape.rotationSpeed.x;
-        shape.rotation.y += shape.rotationSpeed.y;
-
-        // Floating movement with slower oscillation
-        shape.position.x += Math.sin(elapsed * 0.5 + shape.position.y) * 0.05;
-        shape.position.y += Math.cos(elapsed * 0.5 + shape.position.x) * 0.05;
-      });
-
-      renderer.render(scene, camera);
-    }
-
-    initBackground();
-    animateBackground();
-  </script>
-  <script>
-    // Typing animation for the name in Home section
-    const texts = ["Krishna Awasthi", "A Coder", "The Student", "A Future Software Engineer"];
-    const typingSpeed = 100; // ms per character
-    const pauseTime = 1500; // ms to pause on full text
-    let textIndex = 0;
-    let charIndex = 0;
-    const animatedName = document.getElementById("animated-name");
-
-    function type() {
-      if (!animatedName) return;
-      if (charIndex < texts[textIndex].length) {
-        animatedName.textContent += texts[textIndex].charAt(charIndex);
-        charIndex++;
-        setTimeout(type, typingSpeed);
-      } else {
-        setTimeout(erase, pauseTime);
-      }
-    }
-
-    function erase() {
-      if (!animatedName) return;
-      if (charIndex > 0) {
-        animatedName.textContent = texts[textIndex].substring(0, charIndex - 1);
-        charIndex--;
-        setTimeout(erase, typingSpeed / 2);
-      } else {
-        textIndex = (textIndex + 1) % texts.length;
-        setTimeout(type, typingSpeed);
-      }
-    }
-
-    window.addEventListener("load", () => {
-      if (animatedName) {
-        animatedName.textContent = "";
-        type();
-      }
-    });
-  </script>
-</body>
-</html>

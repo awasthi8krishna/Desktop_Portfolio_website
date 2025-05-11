@@ -111,7 +111,7 @@
   <!-- Canvas for 3D background -->
   <canvas id="bg-canvas"></canvas>
 
-  <header class="fixed top-0 left-0 right-0 bg-black dark:bg-[#1e1e1e] shadow-md z-50 transition-colors duration-500">
+  <header class="fixed top-0 left-0 right-0 bg-black dark:bg-[#1e1e1e] shadow-md z-50 transition-colors duration-500 text-white">
     <nav class="container mx-auto flex items-center justify-between px-12 py-4 max-w-screen-xl">
       <!-- Logo -->
       <a href="#" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 select-none tracking-wide">
@@ -139,7 +139,7 @@
       </button>
     </nav>
     <!-- Mobile menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-[#1e1e1e] shadow-inner transition-colors duration-500">
+    <div id="mobile-menu" class="hidden md:hidden bg-black dark:bg-[#1e1e1e] shadow-inner transition-colors duration-500 text-white">
       <ul class="flex flex-col px-8 py-6 space-y-6 text-lg font-medium tracking-wide">
         <li><a href="#home" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">Home</a></li>
         <li><a href="#about" class="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300">About</a></li>
@@ -375,11 +375,7 @@
     </section>
   </main>
 
-  <footer class="bg-indigo-700 text-white py-6">
-    <div class="w-full text-center text-sm select-none px-6 sm:px-12">
-      &copy; My Portfolio Built with ❤️ by Krishna Awasthi.
-    </div>
-  </footer>
+  
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
   <script>

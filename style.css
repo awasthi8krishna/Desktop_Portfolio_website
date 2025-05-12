@@ -122,3 +122,8 @@ html.dark .dark\:bg-gray-700 {
     color: #2e8b57 !important; /* Darker green */
   }
 }
+
+/* Make all paragraphs inside sections have pure white color */
+section p {
+  color: #ffffff !important;
+}
